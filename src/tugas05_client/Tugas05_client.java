@@ -33,8 +33,8 @@ public class Tugas05_client {
                 System.out.println(bytesRead);
                 bos.write(mybytearray, 0, bytesRead);
             } while(bytesRead == 1024);
-            //bos.close();
-            //sock.close();
+            bos.close();
+            sock.close();
         //}
     }
     
