@@ -17,7 +17,10 @@ import java.net.Socket;
 
 /**
  *
- * @author user
+ * @author
+ * 1. Djuned Fernando Djusdek 5112100071
+ * 2. M. Arief Ridwan 5112100097
+ * 3. I Gede Arya Putra Perdana 5112100151
  */
 public class Tugas05_client {
     // Path File can modified 
@@ -43,17 +46,20 @@ public class Tugas05_client {
             bos = new BufferedOutputStream(os);
             while (true) {
                 read();
-                if (pesan != "") {
+                if (!pesan.isEmpty()) {
                     System.out.print(pesan);
+                    if (pesan.contains("bye")) {
+                        break;
+                    }
                     pesan = "";
                 }
                 //System.out.println("READ");
                 readKey();
                 //System.out.println("WRITE");
                 
-                if (check()) {
-                    break;
-                }
+//                if (check()) {
+//                    break;
+//                }
             }
         }
         catch (Exception ex) {
@@ -109,16 +115,15 @@ public class Tugas05_client {
                     String name = terima.replace("take ", "").replace("\r\n", "");
 //                    File myFile = new File(terima.replace("take ", ""));
                     File myFile = new File(path_src, name);
-                    BufferedInputStream fbis = new BufferedInputStream(new FileInputStream(myFile));
-                    
-                    int bytesRead;
-                    do {
-                        bytesRead = fbis.read(mybytearray, 0, 1024);
-                        System.out.println(bytesRead);
-                        bos.write(mybytearray, 0, bytesRead);
-                    } while(bytesRead == 1024);
-                    bos.flush();
-                    fbis.close();
+                    try (BufferedInputStream fbis = new BufferedInputStream(new FileInputStream(myFile))) {
+                        int bytesRead;
+                        do {
+                            bytesRead = fbis.read(mybytearray, 0, 1024);
+                            System.out.println(bytesRead);
+                            bos.write(mybytearray, 0, bytesRead);
+                        } while(bytesRead == 1024);
+                        bos.flush();
+                    }
                 }
                 else {
                     bos.write(terima.getBytes());
@@ -130,7 +135,7 @@ public class Tugas05_client {
     }
     
     private static void readFile(String nameFile) throws IOException {
-        String name = new String(nameFile).replace("\r\n", "");
+        String name = nameFile.replace("\r\n", "");
         byte[] mybytearray = new byte[1024];
 ////        System.out.println(name);
         File file = new File(path_dst, name);
@@ -140,22 +145,13 @@ public class Tugas05_client {
         }
         FileOutputStream fos = new FileOutputStream(file, false);
         
-        BufferedOutputStream fbos = new BufferedOutputStream(fos);
-        int bytesRead;
-        do {
-            bytesRead = is.read(mybytearray, 0, 1024);
-            System.out.println(bytesRead);
-            fbos.write(mybytearray, 0, bytesRead);
-        } while(bytesRead == 1024);
-        fbos.close();
-    }
-    
-    private static boolean check() throws IOException {
-        if ( sock.isClosed() ) {
-            return true;
-        }
-        else {
-            return false;
+        try (BufferedOutputStream fbos = new BufferedOutputStream(fos)) {
+            int bytesRead;
+            do {
+                bytesRead = is.read(mybytearray, 0, 1024);
+                System.out.println(bytesRead);
+                fbos.write(mybytearray, 0, bytesRead);
+            } while(bytesRead == 1024);
         }
     }
     
