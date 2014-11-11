@@ -56,10 +56,6 @@ public class Tugas05_client {
                 //System.out.println("READ");
                 readKey();
                 //System.out.println("WRITE");
-                
-                if (check()) {
-                    break;
-                }
             }
         }
         catch (Exception ex) {
@@ -136,7 +132,7 @@ public class Tugas05_client {
     }
     
     private static void readFile(String nameFile) throws IOException {
-        String name = new String(nameFile).replace("\r\n", "");
+        String name = nameFile.replace("\r\n", "");
         byte[] mybytearray = new byte[1024];
 ////        System.out.println(name);
         File file = new File(path_dst, name);
@@ -146,22 +142,13 @@ public class Tugas05_client {
         }
         FileOutputStream fos = new FileOutputStream(file, false);
         
-        BufferedOutputStream fbos = new BufferedOutputStream(fos);
-        int bytesRead;
-        do {
-            bytesRead = is.read(mybytearray, 0, 1024);
-            System.out.println(bytesRead);
-            fbos.write(mybytearray, 0, bytesRead);
-        } while(bytesRead == 1024);
-        fbos.close();
-    }
-    
-    private static boolean check() throws IOException {
-        if ( sock.isClosed() ) {
-            return true;
-        }
-        else {
-            return false;
+        try (BufferedOutputStream fbos = new BufferedOutputStream(fos)) {
+            int bytesRead;
+            do {
+                bytesRead = is.read(mybytearray, 0, 1024);
+                System.out.println(bytesRead);
+                fbos.write(mybytearray, 0, bytesRead);
+            } while(bytesRead == 1024);
         }
     }
     
