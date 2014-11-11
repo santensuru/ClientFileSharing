@@ -17,7 +17,10 @@ import java.net.Socket;
 
 /**
  *
- * @author user
+ * @author
+ * 1. Djuned Fernando Djusdek 5112100071
+ * 2. M. Arief Ridwan 5112100097
+ * 3. I Gede Arya Putra Perdana 5112100151
  */
 public class Tugas05_client {
     // Path File can modified 
