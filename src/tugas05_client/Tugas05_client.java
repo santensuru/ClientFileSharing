@@ -25,12 +25,12 @@ import java.net.Socket;
  * https://github.com/santensuru/ClientFileSharing
  * email: djuned.ong@gmail.com
  * 
- * version 0.0.1c beta
+ * version 0.0.1d beta
  */
 public class Tugas05_client {
     // Path File can modified 
-    private final static String path_src = "C:\\Users\\FUJITSU\\Documents\\NetBeansProjects\\filesharing";
-    private final static String path_dst = "C:\\Users\\FUJITSU\\Documents\\NetBeansProjects\\filesharing";
+    private final static String path_src = "C:\\cygwin64\\home\\user\\coba\\FTP\\lala\\haha\\coba buat\\haha-coba\\1-coba";
+    private final static String path_dst = "C:\\cygwin64\\home\\user\\coba\\FTP\\lala\\haha\\coba buat\\haha-coba\\2-coba";
     private static Socket sock;
     private static InputStream is;
     private static OutputStream os;
@@ -45,7 +45,7 @@ public class Tugas05_client {
     public static void main(String[] args) throws Exception {
         // TODO code application logic here
         try {
-            sock = new Socket("169.254.82.116", 6060);
+            sock = new Socket("127.0.0.1", 6060);
             is = sock.getInputStream();
             os = sock.getOutputStream();
             bos = new BufferedOutputStream(os);
@@ -100,7 +100,7 @@ public class Tugas05_client {
     
     private static void readKey() throws IOException {
         int buf;
-        byte[] mybytearray = new byte[4096];
+        byte[] mybytearray = new byte[16384];
         while (System.in.available() > 0) {
             buf = System.in.read();
             
@@ -120,10 +120,10 @@ public class Tugas05_client {
                     
                     int bytesRead;
                     do {
-                        bytesRead = fbis.read(mybytearray, 0, 4096);
+                        bytesRead = fbis.read(mybytearray, 0, 16384);
                         System.out.println(bytesRead);
                         bos.write(mybytearray, 0, bytesRead);
-                    } while(bytesRead == 4096);
+                    } while(bytesRead == 16384);
                     bos.flush();
                     fbis.close();
                 }
