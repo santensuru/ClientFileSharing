@@ -29,8 +29,8 @@ import java.net.Socket;
  */
 public class Tugas05_client {
     // Path File can modified 
-    private final static String path_src = "C:\\cygwin64\\home\\user\\coba\\FTP\\lala\\haha\\coba buat\\haha-coba\\1-coba\\";
-    private final static String path_dst = "C:\\cygwin64\\home\\user\\coba\\FTP\\lala\\haha\\coba buat\\haha-coba\\2-coba\\";
+    private final static String path_src = "C:\\Users\\FUJITSU\\Documents\\NetBeansProjects\\filesharing";
+    private final static String path_dst = "C:\\Users\\FUJITSU\\Documents\\NetBeansProjects\\filesharing";
     private static Socket sock;
     private static InputStream is;
     private static OutputStream os;
@@ -45,7 +45,7 @@ public class Tugas05_client {
     public static void main(String[] args) throws Exception {
         // TODO code application logic here
         try {
-            sock = new Socket("127.0.0.1", 6060);
+            sock = new Socket("169.254.82.116", 6060);
             is = sock.getInputStream();
             os = sock.getOutputStream();
             bos = new BufferedOutputStream(os);
@@ -100,7 +100,7 @@ public class Tugas05_client {
     
     private static void readKey() throws IOException {
         int buf;
-        byte[] mybytearray = new byte[1024];
+        byte[] mybytearray = new byte[4096];
         while (System.in.available() > 0) {
             buf = System.in.read();
             
@@ -120,10 +120,10 @@ public class Tugas05_client {
                     
                     int bytesRead;
                     do {
-                        bytesRead = fbis.read(mybytearray, 0, 1024);
+                        bytesRead = fbis.read(mybytearray, 0, 4096);
                         System.out.println(bytesRead);
                         bos.write(mybytearray, 0, bytesRead);
-                    } while(bytesRead == 1024);
+                    } while(bytesRead == 4096);
                     bos.flush();
                     fbis.close();
                 }
