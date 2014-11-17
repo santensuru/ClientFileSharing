@@ -14,6 +14,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 
 /**
  *
@@ -25,7 +29,7 @@ import java.net.Socket;
  * https://github.com/santensuru/ClientFileSharing
  * email: djuned.ong@gmail.com
  * 
- * version 0.0.1d beta
+ * version 0.0.1e beta
  */
 public class Tugas05_client {
     // Path File can modified 
@@ -45,7 +49,7 @@ public class Tugas05_client {
     public static void main(String[] args) throws Exception {
         // TODO code application logic here
         try {
-            sock = new Socket("127.0.0.1", 6060);
+            sock = new Socket(args[0], 6060);
             is = sock.getInputStream();
             os = sock.getOutputStream();
             bos = new BufferedOutputStream(os);
@@ -91,6 +95,7 @@ public class Tugas05_client {
             //System.out.println((char) buf);
             if (pesan.contains("\r\n") || pesan.contains("\n")) {
                 if (pesan.contains("file")) {
+                    System.out.print(pesan);
                     readFile(pesan.replace("file ", ""));
                     pesan = "";
                 }
@@ -116,14 +121,21 @@ public class Tugas05_client {
                     String name = terima.replace("take ", "").replace("\r\n", "");
 //                    File myFile = new File(terima.replace("take ", ""));
                     File myFile = new File(path_src, name);
-                    BufferedInputStream fbis = new BufferedInputStream(new FileInputStream(myFile));
+                    long l = myFile.length();
+                    terima = String.valueOf(l) + "\r\n";
+                    System.out.print("file size: " + terima);
+                    bos.write(terima.getBytes());
+                    bos.flush();
                     
+                    long flag = 0;
+                    BufferedInputStream fbis = new BufferedInputStream(new FileInputStream(myFile));
                     int bytesRead;
                     do {
                         bytesRead = fbis.read(mybytearray, 0, 16384);
-                        System.out.println(bytesRead);
+                        flag += bytesRead;
+                        System.out.println(bytesRead + " " + flag + "/" + l);
                         bos.write(mybytearray, 0, bytesRead);
-                    } while(bytesRead == 16384);
+                    } while(bytesRead == 16384 || !String.valueOf(flag).equals(String.valueOf(l)));
                     bos.flush();
                     fbis.close();
                 }
@@ -138,6 +150,15 @@ public class Tugas05_client {
     
     private static void readFile(String nameFile) throws IOException {
         String name = nameFile.replace("\r\n", "");
+        String temp = "";
+        int buf;
+        do{
+            buf = is.read();
+            temp = temp.concat(String.valueOf((char) buf));
+        } while (!temp.contains("\r\n"));
+        System.out.print("file size: " + temp);
+        temp = temp.replace("\r\n", "");
+//        System.out.println(temp);
         byte[] mybytearray = new byte[1024];
 ////        System.out.println(name);
         File file = new File(path_dst, name);
@@ -147,13 +168,15 @@ public class Tugas05_client {
         }
         FileOutputStream fos = new FileOutputStream(file, false);
         
+        int flag = 0;
         try (BufferedOutputStream fbos = new BufferedOutputStream(fos)) {
             int bytesRead;
             do {
                 bytesRead = is.read(mybytearray, 0, 1024);
-                System.out.println(bytesRead);
+                flag += bytesRead;
+                System.out.println(bytesRead + " " + flag + "/" + temp);
                 fbos.write(mybytearray, 0, bytesRead);
-            } while(bytesRead == 1024);
+            } while(bytesRead == 1024 || !String.valueOf(flag).equals(temp) );
         }
     }
     
