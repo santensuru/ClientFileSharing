@@ -29,7 +29,7 @@ import java.nio.file.attribute.BasicFileAttributes;
  * https://github.com/santensuru/ClientFileSharing
  * email: djuned.ong@gmail.com
  * 
- * version 0.0.1e beta
+ * version 0.0.1f beta
  */
 public class Tugas05_client {
     // Path File can modified 
@@ -116,28 +116,34 @@ public class Tugas05_client {
                     terima = terima.replace("\n", "\r\n");
                 }
                 if (terima.contains("take")) {
-                    bos.write(terima.getBytes());
-                    bos.flush();
+                    File myFile = null;
+                    long l = 0;
                     String name = terima.replace("take ", "").replace("\r\n", "");
-//                    File myFile = new File(terima.replace("take ", ""));
-                    File myFile = new File(path_src, name);
-                    long l = myFile.length();
-                    terima = String.valueOf(l) + "\r\n";
-                    System.out.print("file size: " + terima);
-                    bos.write(terima.getBytes());
-                    bos.flush();
+                    myFile = new File(path_src, name);
+                    if ((l = myFile.length()) > 0) {
+                        bos.write(terima.getBytes());
+                        bos.flush();
+                        
+                        terima = String.valueOf(l) + "\r\n";
+                        System.out.print("file size: " + terima);
+                        bos.write(terima.getBytes());
+                        bos.flush();
+                    }
                     
                     long flag = 0;
-                    BufferedInputStream fbis = new BufferedInputStream(new FileInputStream(myFile));
-                    int bytesRead;
-                    do {
-                        bytesRead = fbis.read(mybytearray, 0, 16384);
-                        flag += bytesRead;
-                        System.out.println(bytesRead + " " + flag + "/" + l);
-                        bos.write(mybytearray, 0, bytesRead);
-                    } while(bytesRead == 16384 || !String.valueOf(flag).equals(String.valueOf(l)));
-                    bos.flush();
-                    fbis.close();
+                    try (BufferedInputStream fbis = new BufferedInputStream(new FileInputStream(myFile))) {
+                        int bytesRead;
+                        do {
+                            bytesRead = fbis.read(mybytearray, 0, 16384);
+                            flag += bytesRead;
+                            System.out.println(bytesRead + " " + flag + "/" + l);
+                            bos.write(mybytearray, 0, bytesRead);
+                        } while(bytesRead == 16384 || !String.valueOf(flag).equals(String.valueOf(l)));
+                        bos.flush();
+                    }
+                    catch(IOException e) {
+                        System.out.println("3 file not found, please try again (You cannot cancel it.)");
+                    }
                 }
                 else {
                     bos.write(terima.getBytes());
