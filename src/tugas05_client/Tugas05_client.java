@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.text.DecimalFormat;
 
 /**
  *
@@ -29,7 +30,7 @@ import java.nio.file.attribute.BasicFileAttributes;
  * https://github.com/santensuru/ClientFileSharing
  * email: djuned.ong@gmail.com
  * 
- * version 0.0.1f beta
+ * version 0.0.1g beta
  */
 public class Tugas05_client {
     // Path File can modified 
@@ -41,6 +42,7 @@ public class Tugas05_client {
     private static BufferedOutputStream bos;
     static String terima = "";
     static String pesan = "";
+    static DecimalFormat df = new DecimalFormat("0.000");
 
     /**
      * @param args the command line arguments
@@ -136,7 +138,7 @@ public class Tugas05_client {
                         do {
                             bytesRead = fbis.read(mybytearray, 0, 16384);
                             flag += bytesRead;
-                            System.out.println(bytesRead + " " + flag + "/" + l);
+                            System.out.println(df.format(flag*100.0/l) + "% " + df.format(bytesRead/1024.0) + " KB/s");
                             bos.write(mybytearray, 0, bytesRead);
                         } while(bytesRead == 16384 || !String.valueOf(flag).equals(String.valueOf(l)));
                         bos.flush();
@@ -164,6 +166,7 @@ public class Tugas05_client {
         } while (!temp.contains("\r\n"));
         System.out.print("file size: " + temp);
         temp = temp.replace("\r\n", "");
+        long t_l = Integer.parseInt(temp);
 //        System.out.println(temp);
         byte[] mybytearray = new byte[1024];
 ////        System.out.println(name);
@@ -180,7 +183,8 @@ public class Tugas05_client {
             do {
                 bytesRead = is.read(mybytearray, 0, 1024);
                 flag += bytesRead;
-                System.out.println(bytesRead + " " + flag + "/" + temp);
+                System.out.println(df.format(flag*100.0/t_l) + "% " + df.format(bytesRead/1024.0) + " KB/s");
+//                System.out.println(bytesRead + " " + flag + "/" + temp);
                 fbos.write(mybytearray, 0, bytesRead);
             } while(bytesRead == 1024 || !String.valueOf(flag).equals(temp) );
         }
