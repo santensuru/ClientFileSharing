@@ -19,6 +19,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.DecimalFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -30,7 +32,7 @@ import java.text.DecimalFormat;
  * https://github.com/santensuru/ClientFileSharing
  * email: djuned.ong@gmail.com
  * 
- * version 0.0.1h beta
+ * version 0.0.2 beta
  */
 public class Tugas05_client {
     // Path File can modified 
@@ -44,6 +46,10 @@ public class Tugas05_client {
     static String pesan = "";
     static DecimalFormat df = new DecimalFormat("0.000");
     static int x = 0;
+    
+    static long flag = 0;
+    static long l;
+    static volatile int bytesReads = 0;
 
     /**
      * @param args the command line arguments
@@ -90,7 +96,7 @@ public class Tugas05_client {
         //}
     }
     
-    private static void read() throws IOException {
+    private static void read() throws IOException, InterruptedException {
         int buf;
         while (is.available() > 0) {
             buf = is.read();
@@ -106,9 +112,9 @@ public class Tugas05_client {
         }
     }
     
-    private static void readKey() throws IOException {
+    private static void readKey() throws IOException, InterruptedException {
         int buf;
-        byte[] mybytearray = new byte[16384];
+        byte[] mybytearray = new byte[16384]; //16384
         while (System.in.available() > 0) {
             buf = System.in.read();
             
@@ -120,7 +126,7 @@ public class Tugas05_client {
                 }
                 if (terima.contains("take")) {
                     File myFile = null;
-                    long l = 0;
+                    l = 0;
                     String name = terima.replace("take ", "").replace("\r\n", "");
                     myFile = new File(path_src, name);
                     if ((l = myFile.length()) > 0) {
@@ -133,17 +139,27 @@ public class Tugas05_client {
                         bos.flush();
                     }
                     
-                    long flag = 0;
                     try (BufferedInputStream fbis = new BufferedInputStream(new FileInputStream(myFile))) {
+                        Thread task = new progressBar();
+                        task.start();
                         int bytesRead;
                         do {
                             bytesRead = fbis.read(mybytearray, 0, 16384);
                             flag += bytesRead;
-                            progressBar(flag, l, bytesRead);
+                            bytesReads += bytesRead;
+                            //this.flag = flag;
+                            //this.l = l;
+                            //this.bytesRead = bytesRead;
+                            
+                            //progressBar(flag, l, bytesRead);
 //                            System.out.println(df.format(flag*100.0/l) + "% " + df.format(bytesRead/1024.0) + " KB/s");
                             bos.write(mybytearray, 0, bytesRead);
                         } while(bytesRead == 16384 || !String.valueOf(flag).equals(String.valueOf(l)));
                         bos.flush();
+                        task.join();
+                        progressBarLast();
+                        flag = 0;
+                        System.out.println("");
                     }
                     catch(IOException e) {
                         System.out.println("3 file not found, please try again (You cannot cancel it.)");
@@ -158,7 +174,7 @@ public class Tugas05_client {
         }
     }
     
-    private static void readFile(String nameFile) throws IOException {
+    private static void readFile(String nameFile) throws IOException, InterruptedException {
         String name = nameFile.replace("\r\n", "");
         String temp = "";
         int buf;
@@ -170,7 +186,7 @@ public class Tugas05_client {
         temp = temp.replace("\r\n", "");
         long t_l = Integer.parseInt(temp);
 //        System.out.println(temp);
-        byte[] mybytearray = new byte[1024];
+        byte[] mybytearray = new byte[16384]; // 1024
 ////        System.out.println(name);
         File file = new File(path_dst, name);
         // if file doesnt exists, then create it
@@ -179,26 +195,69 @@ public class Tugas05_client {
         }
         FileOutputStream fos = new FileOutputStream(file, false);
         
-        long flag = 0;
         try (BufferedOutputStream fbos = new BufferedOutputStream(fos)) {
+            Thread task = new progressBar();
+            task.start();
+            l = t_l;
             int bytesRead;
             do {
-                bytesRead = is.read(mybytearray, 0, 1024);
+                bytesRead = is.read(mybytearray, 0, 16384);
                 flag += bytesRead;
-                progressBar(flag, t_l, bytesRead);
+                bytesReads += bytesRead;
 //                System.out.println(df.format(flag*100.0/t_l) + "% " + df.format(bytesRead/1024.0) + " KB/s");
 //                System.out.println(bytesRead + " " + flag + "/" + temp);
                 fbos.write(mybytearray, 0, bytesRead);
-            } while(bytesRead == 1024 || !String.valueOf(flag).equals(temp) );
+            } while(bytesRead == 16384 || !String.valueOf(flag).equals(temp) );
+            task.join();
+            progressBarLast();
+            flag = 0;
+            System.out.println("");
         }
     }
     
-    private static void progressBar(long flag, long l, long bytesRead) {
+    private static class progressBar extends Thread {
+        
+        progressBar() {
+        }
+        
+        @Override
+        public void run() {
+            char[] posisi = {'/', '-', '\\', '|'};
+            do {
+                String temp_str = "";
+                String persen = df.format(flag*100.0/l) + "% ";
+                String speed = df.format(bytesReads/1024.0) + " KB/s";
+                temp_str = temp_str.concat("\r[");
+                int i;
+                for (i=0; i<flag*100/(l*5)-1; i++) {
+                    temp_str = temp_str.concat("=");
+                }
+                temp_str = temp_str.concat(">");
+                int j = i++;
+                for (i=i; i<20; i++) {
+                    temp_str = temp_str.concat(" ");
+                }
+                temp_str = temp_str.concat("] " + posisi[x%4] + " " + persen + speed);
+                System.out.print(temp_str);
+                System.out.flush();
+                x++;
+                x %= 100;
+                bytesReads = 0;
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Tugas05_client.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } while(flag != l);
+        }
+    }
+    
+    private static void progressBarLast() {
         char[] posisi = {'/', '-', '\\', '|'};
         String temp_str = "";
         String persen = df.format(flag*100.0/l) + "% ";
-        String speed = df.format(bytesRead/1024.0) + " KB/s";
-        temp_str = temp_str.concat("[");
+        String speed = df.format(bytesReads/1024.0) + " KB/s";
+        temp_str = temp_str.concat("\r[");
         int i;
         for (i=0; i<flag*100/(l*5)-1; i++) {
             temp_str = temp_str.concat("=");
@@ -208,11 +267,12 @@ public class Tugas05_client {
         for (i=i; i<20; i++) {
             temp_str = temp_str.concat(" ");
         }
-        temp_str = temp_str.concat("] " + posisi[x%4] + " " + persen + speed + "\r\n");
+        temp_str = temp_str.concat("] " + posisi[x%4] + " " + persen + speed);
         System.out.print(temp_str);
         System.out.flush();
         x++;
         x %= 100;
+        bytesReads = 0;
     }
     
 }
