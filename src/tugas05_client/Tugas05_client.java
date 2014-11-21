@@ -30,7 +30,7 @@ import java.text.DecimalFormat;
  * https://github.com/santensuru/ClientFileSharing
  * email: djuned.ong@gmail.com
  * 
- * version 0.0.1g beta
+ * version 0.0.1h beta
  */
 public class Tugas05_client {
     // Path File can modified 
@@ -43,6 +43,7 @@ public class Tugas05_client {
     static String terima = "";
     static String pesan = "";
     static DecimalFormat df = new DecimalFormat("0.000");
+    static int x = 0;
 
     /**
      * @param args the command line arguments
@@ -138,7 +139,8 @@ public class Tugas05_client {
                         do {
                             bytesRead = fbis.read(mybytearray, 0, 16384);
                             flag += bytesRead;
-                            System.out.println(df.format(flag*100.0/l) + "% " + df.format(bytesRead/1024.0) + " KB/s");
+                            progressBar(flag, l, bytesRead);
+//                            System.out.println(df.format(flag*100.0/l) + "% " + df.format(bytesRead/1024.0) + " KB/s");
                             bos.write(mybytearray, 0, bytesRead);
                         } while(bytesRead == 16384 || !String.valueOf(flag).equals(String.valueOf(l)));
                         bos.flush();
@@ -177,17 +179,40 @@ public class Tugas05_client {
         }
         FileOutputStream fos = new FileOutputStream(file, false);
         
-        int flag = 0;
+        long flag = 0;
         try (BufferedOutputStream fbos = new BufferedOutputStream(fos)) {
             int bytesRead;
             do {
                 bytesRead = is.read(mybytearray, 0, 1024);
                 flag += bytesRead;
-                System.out.println(df.format(flag*100.0/t_l) + "% " + df.format(bytesRead/1024.0) + " KB/s");
+                progressBar(flag, t_l, bytesRead);
+//                System.out.println(df.format(flag*100.0/t_l) + "% " + df.format(bytesRead/1024.0) + " KB/s");
 //                System.out.println(bytesRead + " " + flag + "/" + temp);
                 fbos.write(mybytearray, 0, bytesRead);
             } while(bytesRead == 1024 || !String.valueOf(flag).equals(temp) );
         }
+    }
+    
+    private static void progressBar(long flag, long l, long bytesRead) {
+        char[] posisi = {'/', '-', '\\', '|'};
+        String temp_str = "";
+        String persen = df.format(flag*100.0/l) + "% ";
+        String speed = df.format(bytesRead/1024.0) + " KB/s";
+        temp_str = temp_str.concat("[");
+        int i;
+        for (i=0; i<flag*100/(l*5)-1; i++) {
+            temp_str = temp_str.concat("=");
+        }
+        temp_str = temp_str.concat(">");
+        int j = i++;
+        for (i=i; i<20; i++) {
+            temp_str = temp_str.concat(" ");
+        }
+        temp_str = temp_str.concat("] " + posisi[x%4] + " " + persen + speed + "\r\n");
+        System.out.print(temp_str);
+        System.out.flush();
+        x++;
+        x %= 100;
     }
     
 }
