@@ -28,7 +28,7 @@ import java.util.logging.Logger;
  * https://github.com/santensuru/ClientFileSharing
  * email: djuned.ong@gmail.com
  * 
- * version 0.0.2a beta
+ * version 0.0.2b beta
  */
 public class Tugas05_client {
     // Path File can modified 
@@ -46,6 +46,8 @@ public class Tugas05_client {
     static long flag = 0;
     static long l;
     static volatile int bytesReads = 0;
+    
+    static int count = 0;
 
     /**
      * @param args the command line arguments
@@ -150,7 +152,8 @@ public class Tugas05_client {
                         task.join();
                         progressBarLast();
                         flag = 0;
-                        System.out.println("");
+                        System.out.println("\r\ntotal time: " + etaConvert(count/2));
+                        count = 0;
                     }
                     catch(IOException e) {
                         System.out.println("3 file not found, please try again (You cannot cancel it.)");
@@ -201,7 +204,8 @@ public class Tugas05_client {
             task.join();
             progressBarLast();
             flag = 0;
-            System.out.println("");
+            System.out.println("\r\ntotal time: " + etaConvert(count/2));
+            count = 0;
         }
     }
     
@@ -233,7 +237,8 @@ public class Tugas05_client {
         String persen = df.format(flag*100.0/l) + "% ";
         temp_str = temp_str.concat("\r[");
         
-        String eta = etaConvert(l, flag, bytesReads);
+        if (bytesReads == 0) bytesReads = 1;
+        String eta = " eta " + etaConvert((l - flag)/(bytesReads));
         
         int i;
         for (i=0; i<flag*100/(l*2)-1; i++) {
@@ -250,6 +255,8 @@ public class Tugas05_client {
         x++;
         x %= 100;
         bytesReads = 0;
+        
+        count++;
     }
     
     private static String convert(long l) {
@@ -269,10 +276,8 @@ public class Tugas05_client {
         return speed;
     }
     
-    private static String etaConvert(long l, long flag, long bytesRead) {
-        String eta = " eta ";
-        if (bytesRead == 0) bytesRead = 1;
-        long l_d = (l - flag)/(bytesRead);
+    private static String etaConvert(long l_d) {
+        String eta = "";
         if (l_d >= 86400) {
             eta += String.valueOf(l_d/86400) + " d ";
             l_d %= 86400;
