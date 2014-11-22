@@ -14,10 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.text.DecimalFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,7 +28,7 @@ import java.util.logging.Logger;
  * https://github.com/santensuru/ClientFileSharing
  * email: djuned.ong@gmail.com
  * 
- * version 0.0.2 beta
+ * version 0.0.2a beta
  */
 public class Tugas05_client {
     // Path File can modified 
@@ -134,7 +130,7 @@ public class Tugas05_client {
                         bos.flush();
                         
                         terima = String.valueOf(l) + "\r\n";
-                        System.out.print("file size: " + terima);
+                        System.out.println("file size: " + convert(l).replace("/s", ""));
                         bos.write(terima.getBytes());
                         bos.flush();
                     }
@@ -147,14 +143,9 @@ public class Tugas05_client {
                             bytesRead = fbis.read(mybytearray, 0, 16384);
                             flag += bytesRead;
                             bytesReads += bytesRead;
-                            //this.flag = flag;
-                            //this.l = l;
-                            //this.bytesRead = bytesRead;
-                            
-                            //progressBar(flag, l, bytesRead);
 //                            System.out.println(df.format(flag*100.0/l) + "% " + df.format(bytesRead/1024.0) + " KB/s");
                             bos.write(mybytearray, 0, bytesRead);
-                        } while(bytesRead == 16384 || !String.valueOf(flag).equals(String.valueOf(l)));
+                        } while(!String.valueOf(flag).equals(String.valueOf(l)));
                         bos.flush();
                         task.join();
                         progressBarLast();
@@ -182,9 +173,9 @@ public class Tugas05_client {
             buf = is.read();
             temp = temp.concat(String.valueOf((char) buf));
         } while (!temp.contains("\r\n"));
-        System.out.print("file size: " + temp);
         temp = temp.replace("\r\n", "");
-        long t_l = Integer.parseInt(temp);
+        l = Integer.parseInt(temp);
+        System.out.println("file size: " + convert(l).replace("/s", ""));
 //        System.out.println(temp);
         byte[] mybytearray = new byte[16384]; // 1024
 ////        System.out.println(name);
@@ -198,7 +189,6 @@ public class Tugas05_client {
         try (BufferedOutputStream fbos = new BufferedOutputStream(fos)) {
             Thread task = new progressBar();
             task.start();
-            l = t_l;
             int bytesRead;
             do {
                 bytesRead = is.read(mybytearray, 0, 16384);
@@ -207,7 +197,7 @@ public class Tugas05_client {
 //                System.out.println(df.format(flag*100.0/t_l) + "% " + df.format(bytesRead/1024.0) + " KB/s");
 //                System.out.println(bytesRead + " " + flag + "/" + temp);
                 fbos.write(mybytearray, 0, bytesRead);
-            } while(bytesRead == 16384 || !String.valueOf(flag).equals(temp) );
+            } while(!String.valueOf(flag).equals(temp) );
             task.join();
             progressBarLast();
             flag = 0;
@@ -222,29 +212,10 @@ public class Tugas05_client {
         
         @Override
         public void run() {
-            char[] posisi = {'/', '-', '\\', '|'};
             do {
-                String temp_str = "";
-                String persen = df.format(flag*100.0/l) + "% ";
-                String speed = df.format(bytesReads/1024.0) + " KB/s";
-                temp_str = temp_str.concat("\r[");
-                int i;
-                for (i=0; i<flag*100/(l*5)-1; i++) {
-                    temp_str = temp_str.concat("=");
-                }
-                temp_str = temp_str.concat(">");
-                int j = i++;
-                for (i=i; i<20; i++) {
-                    temp_str = temp_str.concat(" ");
-                }
-                temp_str = temp_str.concat("] " + posisi[x%4] + " " + persen + speed);
-                System.out.print(temp_str);
-                System.out.flush();
-                x++;
-                x %= 100;
-                bytesReads = 0;
+                progressBarLast();
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(500);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(Tugas05_client.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -254,25 +225,68 @@ public class Tugas05_client {
     
     private static void progressBarLast() {
         char[] posisi = {'/', '-', '\\', '|'};
+        
+        bytesReads *= 2;
+        String speed = convert(bytesReads);
+                
         String temp_str = "";
         String persen = df.format(flag*100.0/l) + "% ";
-        String speed = df.format(bytesReads/1024.0) + " KB/s";
         temp_str = temp_str.concat("\r[");
+        
+        String eta = etaConvert(l, flag, bytesReads);
+        
         int i;
-        for (i=0; i<flag*100/(l*5)-1; i++) {
+        for (i=0; i<flag*100/(l*2)-1; i++) {
             temp_str = temp_str.concat("=");
         }
         temp_str = temp_str.concat(">");
         int j = i++;
-        for (i=i; i<20; i++) {
+        for (; i<50; i++) {
             temp_str = temp_str.concat(" ");
         }
-        temp_str = temp_str.concat("] " + posisi[x%4] + " " + persen + speed);
+        temp_str = temp_str.concat("] " + posisi[x%4] + " " + persen + speed + eta);
         System.out.print(temp_str);
         System.out.flush();
         x++;
         x %= 100;
         bytesReads = 0;
+    }
+    
+    private static String convert(long l) {
+        String speed = "";
+        if (l >= 1073741824) {
+            speed = df.format(l/1073741824.0) + " GB/s";
+        }
+        else if (l >= 1048576) {
+            speed = df.format(l/1048576.0) + " MB/s";
+        }
+        else if (l >= 1024) {
+            speed = df.format(l/1024.0) + " KB/s";
+        }
+        else {
+            speed = df.format(l) + " B/s";
+        }
+        return speed;
+    }
+    
+    private static String etaConvert(long l, long flag, long bytesRead) {
+        String eta = " eta ";
+        if (bytesRead == 0) bytesRead = 1;
+        long l_d = (l - flag)/(bytesRead);
+        if (l_d >= 86400) {
+            eta += String.valueOf(l_d/86400) + " d ";
+            l_d %= 86400;
+        }
+        if (l_d >= 3600) {
+            eta += String.valueOf(l_d/3600) + " h ";
+            l_d %= 3600;
+        }
+        if (l_d >= 60) {
+            eta += String.valueOf(l_d/60) + " m ";
+            l_d %= 60;
+        }
+        eta += String.valueOf(l_d) + " s";
+        return eta;
     }
     
 }
