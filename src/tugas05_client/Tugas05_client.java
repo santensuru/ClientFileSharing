@@ -28,7 +28,7 @@ import java.util.logging.Logger;
  * https://github.com/santensuru/ClientFileSharing
  * email: djuned.ong@gmail.com
  * 
- * version 0.0.2b beta
+ * version 0.0.2c beta
  */
 public class Tugas05_client {
     // Path File can modified 
@@ -38,16 +38,17 @@ public class Tugas05_client {
     private static InputStream is;
     private static OutputStream os;
     private static BufferedOutputStream bos;
-    static String terima = "";
-    static String pesan = "";
-    static DecimalFormat df = new DecimalFormat("0.000");
-    static int x = 0;
+    private static String terima = "";
+    private static String pesan = "";
+    private final static DecimalFormat df = new DecimalFormat("0.000");
+    private static int x = 0;
     
-    static long flag = 0;
-    static long l;
-    static volatile int bytesReads = 0;
+    private static long flag = 0;
+    private static long l;
+    private volatile static int bytesReads = 0;
     
-    static int count = 0;
+    private static int count = 0;
+    private final static int time = 2;
 
     /**
      * @param args the command line arguments
@@ -152,7 +153,7 @@ public class Tugas05_client {
                         task.join();
                         progressBarLast();
                         flag = 0;
-                        System.out.println("\r\ntotal time: " + etaConvert(count/2));
+                        System.out.println("\r\ntotal time: " + etaConvert(count/time));
                         count = 0;
                     }
                     catch(IOException e) {
@@ -204,7 +205,7 @@ public class Tugas05_client {
             task.join();
             progressBarLast();
             flag = 0;
-            System.out.println("\r\ntotal time: " + etaConvert(count/2));
+            System.out.println("\r\ntotal time: " + etaConvert(count/time));
             count = 0;
         }
     }
@@ -219,7 +220,7 @@ public class Tugas05_client {
             do {
                 progressBarLast();
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(1000/time);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(Tugas05_client.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -230,30 +231,30 @@ public class Tugas05_client {
     private static void progressBarLast() {
         char[] posisi = {'/', '-', '\\', '|'};
         
-        bytesReads *= 2;
+        bytesReads *= time;
         String speed = convert(bytesReads);
                 
         String temp_str = "";
         String persen = df.format(flag*100.0/l) + "% ";
         temp_str = temp_str.concat("\r[");
         
-        if (bytesReads == 0) bytesReads = 1;
-        String eta = " eta " + etaConvert((l - flag)/(bytesReads));
+//        if (bytesReads == 0) bytesReads = 1;
+        String eta = " eta " + etaConvert((l - flag)/(bytesReads + 1));
         
         int i;
         for (i=0; i<flag*100/(l*2)-1; i++) {
             temp_str = temp_str.concat("=");
         }
         temp_str = temp_str.concat(">");
-        int j = i++;
+        i++;
         for (; i<50; i++) {
             temp_str = temp_str.concat(" ");
         }
-        temp_str = temp_str.concat("] " + posisi[x%4] + " " + persen + speed + eta);
+        temp_str = temp_str.concat("] " + posisi[x] + " " + persen + speed + eta);
         System.out.print(temp_str);
         System.out.flush();
         x++;
-        x %= 100;
+        x %= 4;
         bytesReads = 0;
         
         count++;
