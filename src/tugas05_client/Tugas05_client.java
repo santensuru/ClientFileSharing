@@ -74,7 +74,7 @@ public class Tugas05_client {
                 //System.out.println("WRITE");
             }
         }
-        catch (Exception ex) {
+        catch (IOException | InterruptedException ex) {
             System.err.println("Error: " + ex.toString());
         }
         //while(true) {
@@ -123,7 +123,7 @@ public class Tugas05_client {
                     terima = terima.replace("\n", "\r\n");
                 }
                 if (terima.contains("take")) {
-                    File myFile = null;
+                    File myFile;
                     l = 0;
                     String name = terima.replace("take ", "").replace("\r\n", "");
                     myFile = new File(path_src, name);
@@ -260,7 +260,7 @@ public class Tugas05_client {
     }
     
     private static String convert(long l) {
-        String speed = "";
+        String speed;
         if (l >= 1073741824) {
             speed = df.format(l/1073741824.0) + " GB/s";
         }
