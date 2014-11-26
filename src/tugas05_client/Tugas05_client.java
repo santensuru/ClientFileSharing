@@ -14,7 +14,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.sql.Date;
+import java.sql.Time;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,7 +32,7 @@ import java.util.logging.Logger;
  * https://github.com/santensuru/ClientFileSharing
  * email: djuned.ong@gmail.com
  * 
- * version 0.0.2c beta
+ * version 0.0.2d beta
  */
 public class Tugas05_client {
     // Path File can modified 
@@ -61,6 +65,7 @@ public class Tugas05_client {
             is = sock.getInputStream();
             os = sock.getOutputStream();
             bos = new BufferedOutputStream(os);
+//            System.out.println(String.valueOf(Date.valueOf(LocalDate.now())) + "_" + (String.valueOf(Time.valueOf(LocalTime.now()))).replace(":", "."));
             while (true) {
                 read();
                 if (!pesan.isEmpty()) {
@@ -171,6 +176,7 @@ public class Tugas05_client {
     
     private static void readFile(String nameFile) throws IOException, InterruptedException {
         String name = nameFile.replace("\r\n", "");
+        String current;
         String temp = "";
         int buf;
         do{
@@ -182,12 +188,17 @@ public class Tugas05_client {
         System.out.println("file size: " + convert(l).replace("/s", ""));
 //        System.out.println(temp);
         byte[] mybytearray = new byte[16384]; // 1024
-////        System.out.println(name);
-        File file = new File(path_dst, name);
+//        System.out.println(name);
+        File file;
+        
         // if file doesnt exists, then create it
-        if (!file.exists()) {
-                file.createNewFile();
-        }
+        do {
+            current = String.valueOf(Date.valueOf(LocalDate.now())) + "_" + (String.valueOf(Time.valueOf(LocalTime.now()))).replace(":", ".");
+            file = new File(path_dst, current + "_" + name);
+        } while (file.exists());
+        file.createNewFile();
+        System.out.println("save as: " + current + "_" + name);
+        
         FileOutputStream fos = new FileOutputStream(file, false);
         
         try (BufferedOutputStream fbos = new BufferedOutputStream(fos)) {
