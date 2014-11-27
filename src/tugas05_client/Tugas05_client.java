@@ -16,8 +16,12 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.sql.Date;
 import java.sql.Time;
+import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,7 +36,7 @@ import java.util.logging.Logger;
  * https://github.com/santensuru/ClientFileSharing
  * email: djuned.ong@gmail.com
  * 
- * version 0.0.2d beta
+ * version 0.0.2e beta
  */
 public class Tugas05_client {
     // Path File can modified 
@@ -65,6 +69,7 @@ public class Tugas05_client {
             is = sock.getInputStream();
             os = sock.getOutputStream();
             bos = new BufferedOutputStream(os);
+//            System.out.println(System.currentTimeMillis() + " " + String.valueOf(Timestamp.valueOf(LocalDateTime.now())).replace(" ", "_").replace(".", ",").replace(":", "."));
 //            System.out.println(String.valueOf(Date.valueOf(LocalDate.now())) + "_" + (String.valueOf(Time.valueOf(LocalTime.now()))).replace(":", "."));
             while (true) {
                 read();
@@ -193,7 +198,7 @@ public class Tugas05_client {
         
         // if file doesnt exists, then create it
         do {
-            current = String.valueOf(Date.valueOf(LocalDate.now())) + "_" + (String.valueOf(Time.valueOf(LocalTime.now()))).replace(":", ".");
+            current = String.valueOf(Timestamp.valueOf(LocalDateTime.now())).replace(" ", "_").replace(".", ",").replace(":", ".");
             file = new File(path_dst, current + "_" + name);
         } while (file.exists());
         file.createNewFile();
