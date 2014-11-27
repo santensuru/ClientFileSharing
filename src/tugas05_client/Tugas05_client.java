@@ -5,6 +5,10 @@
  */
 package tugas05_client;
 
+import java.awt.Component;
+import java.awt.Desktop;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -25,6 +29,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 /**
  *
@@ -40,8 +47,8 @@ import java.util.logging.Logger;
  */
 public class Tugas05_client {
     // Path File can modified 
-    private final static String path_src = "C:\\cygwin64\\home\\user\\coba\\FTP\\lala\\haha\\coba buat\\haha-coba\\1-coba";
-    private final static String path_dst = "C:\\cygwin64\\home\\user\\coba\\FTP\\lala\\haha\\coba buat\\haha-coba\\2-coba";
+    private final static String path_src = "C:\\Users\\FUJITSU\\Documents\\NetBeansProjects\\filesharing";
+    private final static String path_dst = "C:\\Users\\FUJITSU\\Documents\\NetBeansProjects\\filesharing";
     private static Socket sock;
     private static InputStream is;
     private static OutputStream os;
@@ -50,6 +57,7 @@ public class Tugas05_client {
     private static String pesan = "";
     private final static DecimalFormat df = new DecimalFormat("0.000");
     private static int x = 0;
+
     
     private static long flag = 0;
     private static long l;
@@ -57,6 +65,7 @@ public class Tugas05_client {
     
     private static int count = 0;
     private final static int time = 2;
+    private static DesktopDemo DeskDem;
 
     /**
      * @param args the command line arguments
@@ -69,6 +78,7 @@ public class Tugas05_client {
             is = sock.getInputStream();
             os = sock.getOutputStream();
             bos = new BufferedOutputStream(os);
+            DeskDem = new DesktopDemo();
 //            System.out.println(System.currentTimeMillis() + " " + String.valueOf(Timestamp.valueOf(LocalDateTime.now())).replace(" ", "_").replace(".", ",").replace(":", "."));
 //            System.out.println(String.valueOf(Date.valueOf(LocalDate.now())) + "_" + (String.valueOf(Time.valueOf(LocalTime.now()))).replace(":", "."));
             while (true) {
@@ -119,6 +129,56 @@ public class Tugas05_client {
                 }
             }
         }
+    }
+   
+    public static class DesktopDemo extends JFrame implements ActionListener {
+        
+        private JButton open;
+        private JButton edit;
+        
+        private Desktop desktop;
+        
+        private String path = "C:\\Users\\FUJITSU\\Documents\\NetBeansProjects\\filesharing";
+        
+        public DesktopDemo(){
+            desktop = Desktop.getDesktop();
+            open = new JButton("Open");
+            edit = new JButton("Edit");
+            open.addActionListener(this);
+            edit.addActionListener(this);
+            JPanel p = new JPanel();
+            p.add(open);
+            p.add(edit);
+            add(p);
+            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            pack();
+            setLocationRelativeTo(null);
+                         
+        }
+        
+        @Override
+        public void actionPerformed(ActionEvent e) {
+             Object source = e.getSource();
+             if (source == open)
+             {
+                 try{
+                     desktop.open(new File(path));
+                 }
+                 catch(IOException z){
+                     System.out.println(z.getMessage());
+                 }
+             }
+             else if (source == edit)
+             {
+                 try{
+                     desktop.edit(new File(path));
+                 }
+                 catch(IOException z){
+                     System.out.println(z.getMessage());
+                 }
+             }
+        }
+        
     }
     
     private static void readKey() throws IOException, InterruptedException {
