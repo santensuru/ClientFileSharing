@@ -65,7 +65,7 @@ public class Tugas05_client {
     
     private static int count = 0;
     private final static int time = 2;
-    private static DesktopDemo DeskDem;
+    //private static DesktopDemo DeskDem;
 
     /**
      * @param args the command line arguments
@@ -78,7 +78,7 @@ public class Tugas05_client {
             is = sock.getInputStream();
             os = sock.getOutputStream();
             bos = new BufferedOutputStream(os);
-            DeskDem = new DesktopDemo();
+            //DeskDem = new DesktopDemo();
 //            System.out.println(System.currentTimeMillis() + " " + String.valueOf(Timestamp.valueOf(LocalDateTime.now())).replace(" ", "_").replace(".", ",").replace(":", "."));
 //            System.out.println(String.valueOf(Date.valueOf(LocalDate.now())) + "_" + (String.valueOf(Time.valueOf(LocalTime.now()))).replace(":", "."));
             while (true) {
@@ -131,14 +131,14 @@ public class Tugas05_client {
         }
     }
    
-    public static class DesktopDemo extends JFrame implements ActionListener {
+    /*public static class DesktopDemo extends JFrame implements ActionListener {
         
         private JButton open;
         private JButton edit;
         
         private Desktop desktop;
         
-        private String path = "C:\\Users\\FUJITSU\\Documents\\NetBeansProjects\\filesharing";
+        private String path = "C:\\Users\\asus\\Documents\\Data";
         
         public DesktopDemo(){
             desktop = Desktop.getDesktop();
@@ -179,7 +179,7 @@ public class Tugas05_client {
              }
         }
         
-    }
+    }*/
     
     private static void readKey() throws IOException, InterruptedException {
         int buf;
