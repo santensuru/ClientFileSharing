@@ -182,7 +182,7 @@ public class Tugas05_client {
     }*/
     
     private static void readKey() throws IOException, InterruptedException {
-        int buf;
+        int buf, using = 0;
         byte[] mybytearray = new byte[16384]; //16384
         while (System.in.available() > 0) {
             buf = System.in.read();
